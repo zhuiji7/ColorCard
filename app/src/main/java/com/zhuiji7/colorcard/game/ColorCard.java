@@ -6,7 +6,7 @@ package com.zhuiji7.colorcard.game;
  */
 public class ColorCard {
     private int color = 0xfffe44fe;
-    private boolean isFace = false;
+    private boolean isFace = true;
     private boolean isShow = true;
     private PicPoint point;
 

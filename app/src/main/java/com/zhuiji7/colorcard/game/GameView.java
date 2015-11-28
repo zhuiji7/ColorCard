@@ -28,7 +28,8 @@ public class GameView extends View {
     private int viewW;//view的宽度
     private int canvasH;//一格画布的高度
     private int canvasW;//一格画布的宽度
-    private ColorCard lastClickedCard;
+    private ColorCard lastClickedCard;//翻开的色板
+    private boolean gameStart;//标识游戏是否开始
     private Bitmap cardBitmap;
     private ArrayList<ColorCard> cards = new ArrayList<ColorCard>();
 
@@ -40,6 +41,11 @@ public class GameView extends View {
         super(context, attrs);
         cardBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.green_card)).getBitmap();
         initCards();
+    }
+
+    public void startGame(){
+        gameStart = true;
+        showBack();
     }
 
     //默认正方形
@@ -70,6 +76,9 @@ public class GameView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if(gameStart){
+            click((int)event.getX(),(int)event.getY());
+        }
         return super.onTouchEvent(event);
     }
 
@@ -144,20 +153,26 @@ public class GameView extends View {
         pp.setX(x/canvasW);
         pp.setY(y / canvasH);
         ColorCard clickedCard = findColorCard(pp);
+        if(!clickedCard.isShow()){
+            return;
+        }
 
         if(lastClickedCard != null){
-            if(isTheSameColor(lastClickedCard,clickedCard)){
-
-            }else{
-
+            if(isTheSameOne(lastClickedCard,clickedCard)){
+                return;
             }
 
+            if(isTheSameColor(lastClickedCard,clickedCard)){
+                lastClickedCard.setIsShow(false);
+                clickedCard.setIsShow(false);
+            }else{
+                lastClickedCard.setIsFace(false);
+                clickedCard.setIsFace(false);
+            }
+            lastClickedCard = null;
         }else{
             clickedCard.setIsFace(true);
             lastClickedCard = clickedCard;
-//            lastClickedCard.setIsFace(false);
-//            clickedCard.setIsFace(false);
-//            lastClickedCard = null;
         }
         invalidate();
 
@@ -176,6 +191,15 @@ public class GameView extends View {
         return colorCard;
     }
 
+    //是否同一个色板
+    private boolean isTheSameOne(ColorCard fir,ColorCard sec){
+        if(fir.getPoint().getX() == sec.getPoint().getX() && fir.getPoint().getY() == sec.getPoint().getY()){
+            return true;
+        }
+        return false;
+    }
+
+    //是否相同颜色
     private boolean isTheSameColor(ColorCard fir,ColorCard sec){
         if(fir.getColor() == sec.getColor()){
             return true;
