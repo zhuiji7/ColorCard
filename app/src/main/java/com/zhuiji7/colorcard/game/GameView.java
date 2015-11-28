@@ -1,11 +1,17 @@
 package com.zhuiji7.colorcard.game;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
+
+import com.zhuiji7.colorcard.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +20,7 @@ import java.util.Collections;
  * Created by cww on 15-11-27.
  */
 public class GameView extends View {
-    int[] color = {Color.rgb(233, 89, 20),Color.BLUE,Color.CYAN,Color.DKGRAY,Color.MAGENTA,Color.GREEN,Color.YELLOW,Color.RED};
+    int[] color = {Color.rgb(233, 89, 20), Color.BLUE, Color.CYAN, Color.DKGRAY, Color.MAGENTA, Color.GREEN, Color.YELLOW, Color.RED};
 
     private int level = 4;//默认等级
     private int padding = 3;
@@ -22,6 +28,7 @@ public class GameView extends View {
     private int viewW;//view的宽度
     private int canvasH;//一格画布的高度
     private int canvasW;//一格画布的宽度
+    private Bitmap cardBitmap;
     private ArrayList<ColorCard> cards = new ArrayList<ColorCard>();
 
     public GameView(Context context) {
@@ -30,6 +37,7 @@ public class GameView extends View {
 
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        cardBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.green_card)).getBitmap();
         initCards();
     }
 
@@ -59,6 +67,12 @@ public class GameView extends View {
         drawAllCards(canvas, cards);
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
+    }
+
+    //初始化色板
     private void initCards() {
         cards = new ArrayList<ColorCard>();
         for (int i = 0; i < level; i++) {
@@ -73,8 +87,8 @@ public class GameView extends View {
         }
         Collections.shuffle(cards);
         int size = cards.size();
-        for(int i = 0;i < size;i ++){
-            cards.get(i).setColor(color[i/2]);
+        for (int i = 0; i < size; i++) {
+            cards.get(i).setColor(color[i / 2]);
         }
     }
 
@@ -92,10 +106,38 @@ public class GameView extends View {
         p.setColor(colorCard.getColor());
 
         if (colorCard.isShow()) {
-            canvas.drawRect(colorCard.getPoint().getX() * canvasW + padding, colorCard.getPoint().getY() * canvasH + padding,
-                    (colorCard.getPoint().getX() + 1) * canvasW - padding, (colorCard.getPoint().getY() + 1) * canvasH - padding, p);
-
+            if (colorCard.isFace()) {
+                canvas.drawRect(colorCard.getPoint().getX() * canvasW + padding, colorCard.getPoint().getY() * canvasH + padding,
+                        (colorCard.getPoint().getX() + 1) * canvasW - padding, (colorCard.getPoint().getY() + 1) * canvasH - padding, p);
+            } else {
+                Rect rc = new Rect(colorCard.getPoint().getX() * canvasW + padding, colorCard.getPoint().getY() * canvasH + padding,
+                        (colorCard.getPoint().getX() + 1) * canvasW - padding, (colorCard.getPoint().getY() + 1) * canvasH - padding);
+                canvas.drawBitmap(cardBitmap, null, rc, null);
+            }
         }
+    }
+
+    //显示色板颜色
+    private void showFace(){
+        int size = cards.size();
+        for(int i = 0;i < size;i ++){
+            cards.get(i).setIsFace(true);
+            cards.get(i).setIsShow(true);
+        }
+        invalidate();
+    }
+
+    //显示色板背面
+    private void showBack(){
+        int size = cards.size();
+        for(int i = 0;i < size;i ++){
+            cards.get(i).setIsFace(false);
+            cards.get(i).setIsShow(true);
+        }
+        invalidate();
+    }
+
+    private void click(int x,int y){
 
     }
 }
