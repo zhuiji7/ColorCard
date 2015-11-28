@@ -28,6 +28,7 @@ public class GameView extends View {
     private int viewW;//view的宽度
     private int canvasH;//一格画布的高度
     private int canvasW;//一格画布的宽度
+    private ColorCard lastClickedCard;
     private Bitmap cardBitmap;
     private ArrayList<ColorCard> cards = new ArrayList<ColorCard>();
 
@@ -137,7 +138,48 @@ public class GameView extends View {
         invalidate();
     }
 
+    //点击色板，并做相应的操作
     private void click(int x,int y){
+        PicPoint pp = new PicPoint();
+        pp.setX(x/canvasW);
+        pp.setY(y / canvasH);
+        ColorCard clickedCard = findColorCard(pp);
 
+        if(lastClickedCard != null){
+            if(isTheSameColor(lastClickedCard,clickedCard)){
+
+            }else{
+
+            }
+
+        }else{
+            clickedCard.setIsFace(true);
+            lastClickedCard = clickedCard;
+//            lastClickedCard.setIsFace(false);
+//            clickedCard.setIsFace(false);
+//            lastClickedCard = null;
+        }
+        invalidate();
+
+    }
+
+    //通过色板脚标查找相应的色板
+    private ColorCard findColorCard(PicPoint pp){
+        ColorCard colorCard = new ColorCard();
+        int size = cards.size();
+        for(int i = 0;i < size;i ++){
+            if(pp.getX() == cards.get(i).getPoint().getX() && pp.getY() == cards.get(i).getPoint().getY()){
+                colorCard = cards.get(i);
+                break;
+            }
+        }
+        return colorCard;
+    }
+
+    private boolean isTheSameColor(ColorCard fir,ColorCard sec){
+        if(fir.getColor() == sec.getColor()){
+            return true;
+        }
+        return false;
     }
 }
