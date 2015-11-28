@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.zhuiji7.colorcard.game.GameView;
 
@@ -46,6 +47,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 gameView.startGame();
+            }
+        });
+        gameView.setOnFinishListener(new GameView.OnFinishListener(){
+            @Override
+            public void onFinish() {
+                Toast.makeText(MainActivity.this,"完成游戏",Toast.LENGTH_LONG).show();
             }
         });
     }

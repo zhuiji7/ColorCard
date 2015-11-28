@@ -31,6 +31,7 @@ public class GameView extends View {
     private ColorCard lastClickedCard;//翻开的色板
     private boolean gameStart;//标识游戏是否开始
     private Bitmap cardBitmap;
+    private OnFinishListener listener;
     private ArrayList<ColorCard> cards = new ArrayList<ColorCard>();
 
     public GameView(Context context) {
@@ -46,6 +47,14 @@ public class GameView extends View {
     public void startGame(){
         gameStart = true;
         showBack();
+    }
+
+    public void setOnFinishListener(OnFinishListener listener){
+        this.listener = listener;
+    }
+
+    public interface OnFinishListener{
+        public void onFinish();
     }
 
     //默认正方形
@@ -174,6 +183,12 @@ public class GameView extends View {
             clickedCard.setIsFace(true);
             lastClickedCard = clickedCard;
         }
+
+        if(isFinish()){
+            if(listener != null){
+                listener.onFinish();
+            }
+        }
         invalidate();
 
     }
@@ -205,5 +220,18 @@ public class GameView extends View {
             return true;
         }
         return false;
+    }
+
+    //检查是否完成游戏
+    private boolean isFinish(){
+        boolean isFinish = true;
+        int size = cards.size();
+        for(int i = 0;i < size;i ++){
+            if(cards.get(i).isShow()){
+                isFinish = false;
+                break;
+            }
+        }
+        return isFinish;
     }
 }
