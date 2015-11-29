@@ -1,5 +1,8 @@
 package com.zhuiji7.colorcard.game;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -33,7 +36,7 @@ public class GameView extends View {
     private Bitmap cardBitmap;
     private OnFinishListener listener;
     private ArrayList<ColorCard> cards = new ArrayList<ColorCard>();
-
+    private ArrayList<ColorCard> animatorCards = new ArrayList<ColorCard>();//动画列表
     public GameView(Context context) {
         this(context, null);
     }
@@ -81,6 +84,7 @@ public class GameView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawAllCards(canvas, cards);
+        drawAnimator(canvas);
     }
 
     @Override
@@ -136,6 +140,18 @@ public class GameView extends View {
         }
     }
 
+    //显示动画
+    private void drawAnimator(Canvas canvas){
+        int size = animatorCards.size();
+        for(int i = 0;i < size;i ++){
+            ColorCard colorCard = animatorCards.get(i);
+            Paint p = new Paint();
+            p.setColor(colorCard.getColor());
+            canvas.drawRect(colorCard.getPoint().getX() * canvasW + padding, colorCard.getPoint().getY() * canvasH + padding,
+                    (colorCard.getPoint().getX() + 1) * canvasW - padding, (colorCard.getPoint().getY() + 1) * canvasH - padding, p);
+        }
+    }
+
     //显示色板颜色
     private void showFace(){
         int size = cards.size();
@@ -178,6 +194,8 @@ public class GameView extends View {
                 lastClickedCard.setIsFace(false);
                 clickedCard.setIsFace(false);
             }
+            showAnimator(lastClickedCard);
+            showAnimator(clickedCard);
             lastClickedCard = null;
         }else{
             clickedCard.setIsFace(true);
@@ -233,5 +251,22 @@ public class GameView extends View {
             }
         }
         return isFinish;
+    }
+
+    //播放动画，显示色板0.2秒
+    private void showAnimator(final ColorCard colorCard){
+        animatorCards.add(colorCard);
+        ValueAnimator animator = ValueAnimator.ofInt(1,1);
+        animator.setDuration(200);
+        animator.start();
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                animatorCards.remove(colorCard);
+                invalidate();
+            }
+        });
+        invalidate();
     }
 }
