@@ -27,8 +27,6 @@ public class GameView extends View {
 
     private int level = 4;//默认等级
     private int padding = 3;
-    private int viewH;//view的高度
-    private int viewW;//view的宽度
     private int canvasH;//一格画布的高度
     private int canvasW;//一格画布的宽度
     private ColorCard lastClickedCard;//翻开的色板
@@ -37,6 +35,7 @@ public class GameView extends View {
     private OnFinishListener listener;
     private ArrayList<ColorCard> cards = new ArrayList<ColorCard>();
     private ArrayList<ColorCard> animatorCards = new ArrayList<ColorCard>();//动画列表
+    private ArrayList<AnimatorShadow> animatorShadowCards = new ArrayList<AnimatorShadow>();//消失动画列表
     public GameView(Context context) {
         this(context, null);
     }
@@ -74,8 +73,6 @@ public class GameView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        viewW = w;
-        viewH = h;
         canvasW = w / level;
         canvasH = h / level;
     }
@@ -85,6 +82,7 @@ public class GameView extends View {
         super.onDraw(canvas);
         drawAllCards(canvas, cards);
         drawAnimator(canvas);
+        drawAnimatorShadow(canvas);
     }
 
     @Override
@@ -152,6 +150,22 @@ public class GameView extends View {
         }
     }
 
+    private void drawAnimatorShadow(Canvas canvas){
+        int size = animatorShadowCards.size();
+        for(int i = 0;i < size;i ++){
+            Paint p = new Paint();
+
+            AnimatorShadow animatorShadow = animatorShadowCards.get(i);
+            p.setColor(animatorShadow.getFirstShadowCard().getColor());
+            canvas.drawRect(animatorShadow.getFirstShadowCard().getPoint().getX(), animatorShadow.getFirstShadowCard().getPoint().getY(),
+                    animatorShadow.getFirstShadowCard().getPoint().getX() + canvasW, animatorShadow.getFirstShadowCard().getPoint().getY() + canvasH,
+                    p);
+            canvas.drawRect(animatorShadow.getSecendShadowCard().getPoint().getX(),animatorShadow.getSecendShadowCard().getPoint().getY(),
+                    animatorShadow.getSecendShadowCard().getPoint().getX() + canvasW,animatorShadow.getSecendShadowCard().getPoint().getY() + canvasH,
+                    p);
+        }
+    }
+
     //显示色板颜色
     private void showFace(){
         int size = cards.size();
@@ -190,12 +204,14 @@ public class GameView extends View {
             if(isTheSameColor(lastClickedCard,clickedCard)){
                 lastClickedCard.setIsShow(false);
                 clickedCard.setIsShow(false);
+                showAnimatorShadow(lastClickedCard,clickedCard);
             }else{
                 lastClickedCard.setIsFace(false);
                 clickedCard.setIsFace(false);
+                showAnimator(lastClickedCard);
+                showAnimator(clickedCard);
             }
-            showAnimator(lastClickedCard);
-            showAnimator(clickedCard);
+
             lastClickedCard = null;
         }else{
             clickedCard.setIsFace(true);
@@ -264,6 +280,31 @@ public class GameView extends View {
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 animatorCards.remove(colorCard);
+                invalidate();
+            }
+        });
+        invalidate();
+    }
+
+    //播放相同颜色色板合并动画
+    private void showAnimatorShadow(ColorCard firstColorCard,ColorCard secondColorCard){
+        final AnimatorShadow animatorShadow = new AnimatorShadow(firstColorCard,secondColorCard,canvasW,canvasH);
+        animatorShadowCards.add(animatorShadow);
+        ValueAnimator animator = ValueAnimator.ofInt(1,100);
+        animator.setDuration(300);
+        animator.start();
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                animatorShadow.setProgress((int)animation.getAnimatedValue());
+                invalidate();
+            }
+        });
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                animatorShadowCards.remove(animatorShadow);
                 invalidate();
             }
         });

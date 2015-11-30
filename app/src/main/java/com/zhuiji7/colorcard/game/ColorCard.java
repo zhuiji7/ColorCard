@@ -4,7 +4,7 @@ package com.zhuiji7.colorcard.game;
  * Created by cww on 15-11-27.
  * 颜色板
  */
-public class ColorCard {
+public class ColorCard implements Cloneable{
     private int color = 0xfffe44fe;
     private boolean isFace = true;
     private boolean isShow = true;
@@ -42,5 +42,16 @@ public class ColorCard {
 
     public void setPoint(PicPoint point) {
         this.point = point;
+    }
+
+    @Override
+    public ColorCard clone(){
+        ColorCard c = null;
+        try {
+            c = (ColorCard)super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return c;
     }
 }
