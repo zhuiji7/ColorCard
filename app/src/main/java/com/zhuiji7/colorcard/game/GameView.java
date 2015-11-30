@@ -10,6 +10,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,6 +27,7 @@ import java.util.Collections;
 public class GameView extends View {
     int[] color = {Color.rgb(233, 89, 20), Color.BLUE, Color.CYAN, Color.DKGRAY, Color.MAGENTA, Color.GREEN, Color.YELLOW, Color.RED};
 
+    private Context mycontext;
     private int level = 4;//默认等级
     private int padding = 3;
     private int canvasH;//一格画布的高度
@@ -36,14 +39,20 @@ public class GameView extends View {
     private ArrayList<ColorCard> cards = new ArrayList<ColorCard>();
     private ArrayList<ColorCard> animatorCards = new ArrayList<ColorCard>();//动画列表
     private ArrayList<AnimatorShadow> animatorShadowCards = new ArrayList<AnimatorShadow>();//消失动画列表
+    private SoundPool soundPool;//声音池
+    private int s_click;//点击色块声音
+    private int s_dis;//色块消失声音
+    private int s_error;//错误
     public GameView(Context context) {
         this(context, null);
     }
 
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mycontext = context;
         cardBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.green_card)).getBitmap();
         initCards();
+        initSound();
     }
 
     public void startGame(){
@@ -57,6 +66,14 @@ public class GameView extends View {
 
     public interface OnFinishListener{
         public void onFinish();
+    }
+
+    private void initSound(){
+        //创建一个SoundPool对象，该对象可以容纳2个音频流
+        soundPool=new SoundPool(3, AudioManager.STREAM_MUSIC,0);
+        s_click = soundPool.load(mycontext,R.raw.s_click,1);
+        s_dis = soundPool.load(mycontext,R.raw.s_dis,1);
+        s_error = soundPool.load(mycontext,R.raw.s_error,1);
     }
 
     //默认正方形
@@ -204,10 +221,12 @@ public class GameView extends View {
             if(isTheSameColor(lastClickedCard,clickedCard)){
                 lastClickedCard.setIsShow(false);
                 clickedCard.setIsShow(false);
+                soundPool.play(s_dis, 1, 1, 0, 0, 1);
                 showAnimatorShadow(lastClickedCard,clickedCard);
             }else{
                 lastClickedCard.setIsFace(false);
                 clickedCard.setIsFace(false);
+                soundPool.play(s_error, 1, 1, 0, 0, 1);
                 showAnimator(lastClickedCard);
                 showAnimator(clickedCard);
             }
@@ -216,8 +235,8 @@ public class GameView extends View {
         }else{
             clickedCard.setIsFace(true);
             lastClickedCard = clickedCard;
+            soundPool.play(s_click, 1, 1, 0, 0, 1);
         }
-
         if(isFinish()){
             if(listener != null){
                 listener.onFinish();
