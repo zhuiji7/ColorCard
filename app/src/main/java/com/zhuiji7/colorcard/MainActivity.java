@@ -1,6 +1,8 @@
 package com.zhuiji7.colorcard;
 
+import android.content.Intent;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -38,7 +40,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings1) {
+            gameView.setLevel(1);
+            return true;
+        }else if(id == R.id.action_settings2){
+            gameView.setLevel(2);
+            return true;
+        }else if(id == R.id.action_settings3){
+            gameView.setLevel(3);
+            return true;
+        }else if(id == R.id.action_settings4){
+            Uri uri = Uri.parse(getString(R.string.project_url));
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
             return true;
         }
 

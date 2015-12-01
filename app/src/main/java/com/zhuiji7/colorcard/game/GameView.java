@@ -31,8 +31,10 @@ public class GameView extends View {
     private Context mycontext;
     private int level = 6;//默认等级
     private int padding = 3;//色块与色块之间的距离
-    private int canvasH;//一格画布的高度
-    private int canvasW;//一格画布的宽度
+    private int canvasH;
+    private int canvasW;
+    private int colorCardH;//一格画布的高度
+    private int colorCardW;//一格画布的宽度
     private ColorCard lastClickedCard;//翻开的色板
     private boolean gameStart;//标识游戏是否开始
     private Bitmap cardBitmap;
@@ -73,6 +75,10 @@ public class GameView extends View {
         }else {
             level = 6;
         }
+        gameStart = false;
+        colorCardW = canvasW / level;
+        colorCardH = canvasH / level;
+        initCards();
         showFace();
     }
 
@@ -102,8 +108,11 @@ public class GameView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        canvasW = w / level;
-        canvasH = h / level;
+        canvasW = w;
+        canvasH = h;
+
+        colorCardW = w / level;
+        colorCardH = h / level;
     }
 
     @Override
@@ -157,11 +166,11 @@ public class GameView extends View {
 
         if (colorCard.isShow()) {
             if (colorCard.isFace()) {
-                canvas.drawRect(colorCard.getPoint().getX() * canvasW + padding, colorCard.getPoint().getY() * canvasH + padding,
-                        (colorCard.getPoint().getX() + 1) * canvasW - padding, (colorCard.getPoint().getY() + 1) * canvasH - padding, p);
+                canvas.drawRect(colorCard.getPoint().getX() * colorCardW + padding, colorCard.getPoint().getY() * colorCardH + padding,
+                        (colorCard.getPoint().getX() + 1) * colorCardW - padding, (colorCard.getPoint().getY() + 1) * colorCardH - padding, p);
             } else {
-                Rect rc = new Rect(colorCard.getPoint().getX() * canvasW + padding, colorCard.getPoint().getY() * canvasH + padding,
-                        (colorCard.getPoint().getX() + 1) * canvasW - padding, (colorCard.getPoint().getY() + 1) * canvasH - padding);
+                Rect rc = new Rect(colorCard.getPoint().getX() * colorCardW + padding, colorCard.getPoint().getY() * colorCardH + padding,
+                        (colorCard.getPoint().getX() + 1) * colorCardW - padding, (colorCard.getPoint().getY() + 1) * colorCardH - padding);
                 canvas.drawBitmap(cardBitmap, null, rc, null);
             }
         }
@@ -174,8 +183,8 @@ public class GameView extends View {
             ColorCard colorCard = animatorCards.get(i);
             Paint p = new Paint();
             p.setColor(colorCard.getColor());
-            canvas.drawRect(colorCard.getPoint().getX() * canvasW + padding, colorCard.getPoint().getY() * canvasH + padding,
-                    (colorCard.getPoint().getX() + 1) * canvasW - padding, (colorCard.getPoint().getY() + 1) * canvasH - padding, p);
+            canvas.drawRect(colorCard.getPoint().getX() * colorCardW + padding, colorCard.getPoint().getY() * colorCardH + padding,
+                    (colorCard.getPoint().getX() + 1) * colorCardW - padding, (colorCard.getPoint().getY() + 1) * colorCardH - padding, p);
         }
     }
 
@@ -187,10 +196,10 @@ public class GameView extends View {
             AnimatorShadow animatorShadow = animatorShadowCards.get(i);
             p.setColor(animatorShadow.getFirstShadowCard().getColor());
             canvas.drawRect(animatorShadow.getFirstShadowCard().getPoint().getX(), animatorShadow.getFirstShadowCard().getPoint().getY(),
-                    animatorShadow.getFirstShadowCard().getPoint().getX() + canvasW, animatorShadow.getFirstShadowCard().getPoint().getY() + canvasH,
+                    animatorShadow.getFirstShadowCard().getPoint().getX() + colorCardW, animatorShadow.getFirstShadowCard().getPoint().getY() + colorCardH,
                     p);
             canvas.drawRect(animatorShadow.getSecendShadowCard().getPoint().getX(),animatorShadow.getSecendShadowCard().getPoint().getY(),
-                    animatorShadow.getSecendShadowCard().getPoint().getX() + canvasW,animatorShadow.getSecendShadowCard().getPoint().getY() + canvasH,
+                    animatorShadow.getSecendShadowCard().getPoint().getX() + colorCardW,animatorShadow.getSecendShadowCard().getPoint().getY() + colorCardH,
                     p);
         }
     }
@@ -218,8 +227,8 @@ public class GameView extends View {
     //点击色板，并做相应的操作
     private void click(int x,int y){
         PicPoint pp = new PicPoint();
-        pp.setX(x/canvasW);
-        pp.setY(y / canvasH);
+        pp.setX(x/ colorCardW);
+        pp.setY(y / colorCardH);
         ColorCard clickedCard = findColorCard(pp);
         if(!clickedCard.isShow()){
             return;
@@ -319,7 +328,7 @@ public class GameView extends View {
 
     //播放相同颜色色板合并动画
     private void showAnimatorShadow(ColorCard firstColorCard,ColorCard secondColorCard){
-        final AnimatorShadow animatorShadow = new AnimatorShadow(firstColorCard,secondColorCard,canvasW,canvasH);
+        final AnimatorShadow animatorShadow = new AnimatorShadow(firstColorCard,secondColorCard, colorCardW, colorCardH);
         animatorShadowCards.add(animatorShadow);
         ValueAnimator animator = ValueAnimator.ofInt(1,100);
         animator.setDuration(300);
