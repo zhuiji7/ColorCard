@@ -25,11 +25,12 @@ import java.util.Collections;
  * Created by cww on 15-11-27.
  */
 public class GameView extends View {
-    int[] color = {Color.rgb(233, 89, 20), Color.BLUE, Color.CYAN, Color.DKGRAY, Color.MAGENTA, Color.GREEN, Color.YELLOW, Color.RED};
+    int[] color = {Color.rgb(233, 89, 20), Color.BLUE, Color.CYAN, Color.DKGRAY, Color.MAGENTA, Color.GREEN, Color.YELLOW, Color.RED,Color.rgb(145, 44, 238),
+            Color.rgb(233, 89, 20), Color.BLUE, Color.CYAN, Color.DKGRAY, Color.MAGENTA, Color.GREEN, Color.YELLOW, Color.RED,Color.rgb(145, 44, 238),};
 
     private Context mycontext;
-    private int level = 4;//默认等级
-    private int padding = 3;
+    private int level = 6;//默认等级
+    private int padding = 3;//色块与色块之间的距离
     private int canvasH;//一格画布的高度
     private int canvasW;//一格画布的宽度
     private ColorCard lastClickedCard;//翻开的色板
@@ -62,6 +63,17 @@ public class GameView extends View {
 
     public void setOnFinishListener(OnFinishListener listener){
         this.listener = listener;
+    }
+
+    public void setLevel(int toLevel){
+        if(toLevel == 1){
+            level = 2;
+        }else if(toLevel == 2){
+            level = 4;
+        }else {
+            level = 6;
+        }
+        showFace();
     }
 
     public interface OnFinishListener{

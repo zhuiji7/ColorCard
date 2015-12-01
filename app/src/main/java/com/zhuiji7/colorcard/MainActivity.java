@@ -1,8 +1,10 @@
 package com.zhuiji7.colorcard;
 
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,12 +16,13 @@ import com.zhuiji7.colorcard.game.GameView;
 public class MainActivity extends AppCompatActivity {
     private Button button;
     private GameView gameView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        button = (Button)this.findViewById(R.id.button);
-        gameView = (GameView)this.findViewById(R.id.game_view);
+        button = (Button) this.findViewById(R.id.button);
+        gameView = (GameView) this.findViewById(R.id.game_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setListener();
@@ -42,18 +45,55 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setListener(){
+    private void setListener() {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 gameView.startGame();
             }
         });
-        gameView.setOnFinishListener(new GameView.OnFinishListener(){
+        gameView.setOnFinishListener(new GameView.OnFinishListener() {
             @Override
             public void onFinish() {
-                Toast.makeText(MainActivity.this,"完成游戏",Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "恭喜你完成游戏", Toast.LENGTH_LONG).show();
             }
         });
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                volumevDown();
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                volumevUP();
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+
+    private void volumevUP() {
+        AudioManager audioManager = (AudioManager) this.getSystemService(this.AUDIO_SERVICE);
+        int nowVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        if (nowVolume < maxVolume) {
+            nowVolume++;
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, nowVolume, 0);
+        }
+
+    }
+
+
+    private void volumevDown() {
+        AudioManager audioManager = (AudioManager) this.getSystemService(this.AUDIO_SERVICE);
+        int nowVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        if (nowVolume > 0) {
+            nowVolume--;
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, nowVolume, 0);
+        }
+    }
+
+
 }
