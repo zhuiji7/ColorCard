@@ -29,7 +29,7 @@ public class GameView extends View {
             Color.rgb(233, 89, 20), Color.BLUE, Color.CYAN, Color.DKGRAY, Color.MAGENTA, Color.GREEN, Color.YELLOW, Color.RED,Color.rgb(145, 44, 238),};
 
     private Context mycontext;
-    private int level = 6;//默认等级
+    private int level = 4;//默认等级
     private int padding = 3;//色块与色块之间的距离
     private int canvasH;
     private int canvasW;
@@ -75,11 +75,12 @@ public class GameView extends View {
         }else {
             level = 6;
         }
+        lastClickedCard = null;
         gameStart = false;
         colorCardW = canvasW / level;
         colorCardH = canvasH / level;
         initCards();
-        showFace();
+        showBack();
     }
 
     public interface OnFinishListener{
@@ -118,9 +119,11 @@ public class GameView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         drawAllCards(canvas, cards);
         drawAnimator(canvas);
         drawAnimatorShadow(canvas);
+
     }
 
     @Override
@@ -205,7 +208,7 @@ public class GameView extends View {
     }
 
     //显示色板颜色
-    private void showFace(){
+    public void showFace(){
         int size = cards.size();
         for(int i = 0;i < size;i ++){
             cards.get(i).setIsFace(true);
@@ -259,6 +262,7 @@ public class GameView extends View {
             soundPool.play(s_click, 1, 1, 0, 0, 1);
         }
         if(isFinish()){
+            gameStart = false;
             if(listener != null){
                 listener.onFinish();
             }
